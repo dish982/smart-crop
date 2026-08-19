@@ -9,12 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.9.2",
     "next": "16.2.11",
+    "next-auth": "^4.24.15",
+    "next-pwa": "^5.6.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/react": "19.2.18",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",

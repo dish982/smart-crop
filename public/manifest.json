@@ -1,0 +1,38 @@
+{
+  "name": "Smart Crop Advisory",
+  "short_name": "CropAdvisory",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+ "icons": [
+  {
+    "src": "/icon-192.png",
+    "sizes": "500x500",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "/icon-512.png",
+    "sizes": "500x500",
+    "type": "image/png",
+    "purpose": "any"
+  }
+],
+"screenshots": [
+  {
+    "src": "/screenshot-desktop.png",
+    "sizes": "1918x867",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "Desktop view of Smart Crop Advisory"
+  },
+  {
+    "src": "/screenshot-mobile.png",
+    "sizes": "421x751",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "Mobile view of Smart Crop Advisory"
+  }
+]
+}
