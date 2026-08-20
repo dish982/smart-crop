@@ -1,40 +1,41 @@
 @import "tailwindcss";
 
+@theme {
+  /* Brand Colors -> generates bg-*, text-*, border-* automatically */
+  --color-primary-green: #2D5A27;
+  --color-primary-green-hover: #21431D;
+  --color-pistachio-green: #8B9E5A;
+  
+  --color-accent-cherry: #7A1734;
+  --color-accent-cherry-hover: #5A1026;
+  
+  --color-bg-cream: #FAF7F2;
+  --color-surface-card: #FFFFFF;
+  --color-surface-muted: #F3EEE7;
+  
+  --color-text-main: #1C241B;
+  --color-text-subtle: #636B62;
+  --color-border-light: #E5DEC3;
+
+  /* Custom Shadows -> generates shadow-soft, shadow-hover */
+  --shadow-soft: 0 4px 20px -2px rgba(45, 90, 39, 0.08);
+  --shadow-hover: 0 8px 25px -4px rgba(45, 90, 39, 0.15);
+}
+
 @layer base {
-  :root {
-    /* Brand Earth & Agricultural Palette */
-    --primary-green: #2D5A27;
-    --primary-green-hover: #21431D;
-    --pistachio-green: #8B9E5A;
-    
-    --accent-cherry: #7A1734;
-    --accent-cherry-hover: #5A1026;
-    
-    --bg-cream: #FAF7F2;
-    --surface-card: #FFFFFF;
-    --surface-muted: #F3EEE7;
-    
-    --text-main: #1C241B;
-    --text-subtle: #636B62;
-    --border-light: #E5DEC3;
-
-    --shadow-soft: 0 4px 20px -2px rgba(45, 90, 39, 0.08);
-    --shadow-hover: 0 8px 25px -4px rgba(45, 90, 39, 0.15);
-  }
-
   body {
-    background-color: var(--bg-cream);
-    color: var(--text-main);
+    background-color: var(--color-bg-cream);
+    color: var(--color-text-main);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Base Component Classes for Teammates */
+/* Base Component Classes */
 @layer components {
   /* Buttons */
   .btn-primary {
-    background-color: var(--primary-green);
+    background-color: var(--color-primary-green);
     color: #ffffff;
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
@@ -44,15 +45,15 @@
   }
 
   .btn-primary:hover {
-    background-color: var(--primary-green-hover);
+    background-color: var(--color-primary-green-hover);
     transform: translateY(-1px);
     box-shadow: var(--shadow-soft);
   }
 
   .btn-secondary {
-    background-color: var(--surface-muted);
-    color: var(--text-main);
-    border: 1px solid var(--border-light);
+    background-color: var(--color-surface-muted);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border-light);
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
     font-weight: 600;
@@ -60,12 +61,12 @@
   }
 
   .btn-secondary:hover {
-    background-color: var(--border-light);
+    background-color: var(--color-border-light);
     transform: translateY(-1px);
   }
 
   .btn-danger {
-    background-color: var(--accent-cherry);
+    background-color: var(--color-accent-cherry);
     color: #ffffff;
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
@@ -74,13 +75,13 @@
   }
 
   .btn-danger:hover {
-    background-color: var(--accent-cherry-hover);
+    background-color: var(--color-accent-cherry-hover);
   }
 
   /* Cards */
   .card-agri {
-    background-color: var(--surface-card);
-    border: 1px solid var(--border-light);
+    background-color: var(--color-surface-card);
+    border: 1px solid var(--color-border-light);
     border-radius: 0.75rem;
     padding: 1.5rem;
     box-shadow: var(--shadow-soft);
@@ -96,21 +97,17 @@
   .input-agri {
     width: 100%;
     padding: 0.625rem 0.875rem;
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--color-border-light);
     border-radius: 0.5rem;
     background-color: #ffffff;
-    color: var(--text-main);
+    color: var(--color-text-main);
     transition: border-color 0.2s ease;
   }
 
   .input-agri:focus {
     outline: none;
-    border-color: var(--primary-green);
-    .input-agri:focus {
-  outline: none;
-  border-color: var(--primary-green);
-  box-shadow: 0 0 0 3px rgba(139, 158, 90, 0.4); /* Uses pistachio-green with opacity */
-}
+    border-color: var(--color-primary-green);
+    box-shadow: 0 0 0 3px rgba(139, 158, 90, 0.4);
   }
 }
 
@@ -126,12 +123,12 @@ input[type="number"]::-webkit-outer-spin-button {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-cream);
+  background: var(--color-bg-cream);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--pistachio-green);
+  background: var(--color-pistachio-green);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-green);
+  background: var(--color-primary-green);
 }

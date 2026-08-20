@@ -1,7 +1,15 @@
-import { setServers } from 'node:dns';
 import mongoose from 'mongoose';
 
+import dns from 'node:dns';
 
+// Configure DNS fallback servers once inside Node runtime environment
+try {
+  if (typeof window === 'undefined' && dns.setServers) {
+    dns.setServers(['1.1.1.1', '8.8.8.8']);
+  }
+} catch (error) {
+  console.warn('DNS setServers warning:', error.message);
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
