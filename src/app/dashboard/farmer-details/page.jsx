@@ -1,4 +1,4 @@
-export default function DashboardPage() {
+export default function FarmerDetails() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
       <div className="card-agri max-w-lg w-full p-8">

@@ -12,7 +12,7 @@ export function middleware(request) {
 
   // 2. If already logged in and trying to access /login or /signup -> Redirect to Dashboard
   if ((pathname === '/login' || pathname === '/signup') && token) {
-    return NextResponse.redirect(new URL('/dashboard/crop-advisory', request.url));
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();

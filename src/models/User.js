@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     state: { type: String, default: '' },
     district: { type: String, default: '' },
-    role: { type: String, enum: ['farmer', 'admin'], default: 'farmer' },
+    role: { type: String, enum: ['Farmer', 'Admin'], default: 'Farmer' },
   },
   { timestamps: true }
 );

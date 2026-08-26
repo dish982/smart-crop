@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -32,7 +34,8 @@ export default function LoginPage() {
         throw new Error(data.error || 'Invalid credentials');
       }
 
-      router.push('/dashboard/crop-advisory');
+      router.replace('/dashboard');
+      router.refresh();
     } catch (err) {
       setError(err.message);
     } finally {

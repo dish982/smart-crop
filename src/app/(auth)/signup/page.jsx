@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Check, X } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -16,12 +17,32 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // track if password field is focused 
+  const [showPasswordRules, setShowPasswordRules] = useState(false);
+
+  // Real-time password criteria verification
+  const passwordValidations = {
+    minLength: formData.password.length >= 8,
+    hasUppercase: /[A-Z]/.test(formData.password),
+    hasLowercase: /[a-z]/.test(formData.password),
+    hasDigit: /[0-9]/.test(formData.password),
+  };
+
+  const isPasswordValid = Object.values(passwordValidations).every(Boolean);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Secondary submit check for safety
+    if (!isPasswordValid) {
+      setError('Please fulfill all password requirements before signing up.');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -38,7 +59,7 @@ export default function SignupPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      router.push('/dashboard/crop-advisory');
+      router.push('/dashboard');
 
     } catch (err) {
       setError(err.message);
@@ -99,6 +120,7 @@ export default function SignupPage() {
               value={formData.phone}
               onChange={handleChange}
               className="input-agri text-lg"
+              minLength={10}
             />
           </div>
 
@@ -113,8 +135,35 @@ export default function SignupPage() {
               placeholder="Create a strong password"
               value={formData.password}
               onChange={handleChange}
+              onFocus={() => setShowPasswordRules(true)}
               className="input-agri"
             />
+
+            {/* Password Validation Rules Checklist */}
+            {(showPasswordRules || formData.password.length > 0) && (
+            <div className="mt-3 p-3 bg-surface-muted rounded-lg border border-border-light space-y-1.5 text-xs">
+              <p className="font-semibold text-text-subtle mb-1">
+                Password requirements:
+              </p>
+              
+              <ValidationRule 
+                isValid={passwordValidations.minLength} 
+                text="At least 8 characters" 
+              />
+              <ValidationRule 
+                isValid={passwordValidations.hasUppercase} 
+                text="At least one uppercase letter (A-Z)" 
+              />
+              <ValidationRule 
+                isValid={passwordValidations.hasLowercase} 
+                text="At least one lowercase letter (a-z)" 
+              />
+              <ValidationRule 
+                isValid={passwordValidations.hasDigit} 
+                text="At least one number (0-9)" 
+              />
+            </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-1">
@@ -148,8 +197,8 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="btn-primary w-full mt-3 text-lg py-3 disabled:opacity-50"
+            disabled={loading || !isPasswordValid}
+            className="btn-primary w-full mt-3 text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
@@ -166,6 +215,24 @@ export default function SignupPage() {
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Sub-component for rendering individual validation status line
+function ValidationRule({ isValid, text }) {
+  return (
+    <div 
+      className={`flex items-center gap-2 transition-colors duration-200 ${
+        isValid ? 'text-emerald-600 font-medium' : 'text-text-subtle'
+      }`}
+    >
+      {isValid ? (
+        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+      ) : (
+        <X className="w-3.5 h-3.5 text-text-subtle opacity-50 shrink-0" />
+      )}
+      <span>{text}</span>
     </div>
   );
 }

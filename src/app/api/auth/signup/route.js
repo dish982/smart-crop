@@ -39,7 +39,11 @@ export async function POST(request) {
 
     // Generate JWT Token valid for 30 days
     const token = jwt.sign(
-      { userId: newUser._id, phone: newUser.phone, role: newUser.role },
+      { userId: newUser._id, 
+        phone: newUser.phone, 
+        role: newUser.role || "Farmer",
+        state: newUser.state,
+       },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -47,7 +51,7 @@ export async function POST(request) {
     const response = NextResponse.json(
       {
         message: 'Signup successful',
-        user: { id: newUser._id, name: newUser.name, phone: newUser.phone },
+        user: { id: newUser._id, name: newUser.name, phone: newUser.phone, state: newUser.state },
       },
       { status: 201 }
     );
