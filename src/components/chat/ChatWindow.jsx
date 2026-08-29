@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import MessageBubble from "./MessageBubble";
 import VoiceButton from "./VoiceButton";
+
+const INITIAL_MESSAGES = {
+  en: "Hello! 🌱 I am your Farm Assistant. You can type or speak your question in English, Hindi, or Marathi.",
+
+  hi: "नमस्ते! 🌱 मैं आपका फार्म असिस्टेंट हूँ। आप अपना प्रश्न हिंदी, अंग्रेज़ी या मराठी में टाइप या बोल सकते हैं।",
+
+  mr: "नमस्कार! 🌱 मी तुमचा फार्म असिस्टंट आहे. तुम्ही तुमचा प्रश्न मराठी, हिंदी किंवा इंग्रजीमध्ये टाइप किंवा बोलू शकता.",
+};
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      message:
-        "Namaste! 🌱 I am your Farm Assistant. You can type or speak your question in English, Hindi, or Marathi.",
+      message: INITIAL_MESSAGES.en,
       sender: "assistant",
     },
   ]);
@@ -17,9 +24,48 @@ export default function ChatWindow() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Selected voice language
+  // Selected voice/chat language
   const [language, setLanguage] = useState("en-IN");
-  const [lastAssistantResponse, setLastAssistantResponse] = useState("");
+
+  // Latest assistant response for Text-to-Speech
+  const [lastAssistantResponse, setLastAssistantResponse] =
+    useState("");
+
+  // --------------------------------------------------
+  // LANGUAGE CHANGE
+  // --------------------------------------------------
+
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+
+    setLanguage(newLanguage);
+
+    const languageCode = newLanguage.split("-")[0];
+
+    // Change the initial assistant message
+    setMessages((previousMessages) => {
+      if (previousMessages.length === 0) {
+        return previousMessages;
+      }
+
+      return [
+        {
+          ...previousMessages[0],
+          message:
+            INITIAL_MESSAGES[languageCode] ||
+            INITIAL_MESSAGES.en,
+        },
+        ...previousMessages.slice(1),
+      ];
+    });
+
+    // Clear old TTS response
+    setLastAssistantResponse("");
+  };
+
+  // --------------------------------------------------
+  // SEND MESSAGE
+  // --------------------------------------------------
 
   const sendMessage = async (messageText = input) => {
     const trimmedMessage = messageText.trim();
@@ -50,6 +96,9 @@ export default function ChatWindow() {
         },
         body: JSON.stringify({
           message: trimmedMessage,
+
+          // Send selected language to API
+          language: language.split("-")[0],
         }),
       });
 
@@ -65,36 +114,55 @@ export default function ChatWindow() {
         sender: "assistant",
       };
 
-      setLastAssistantResponse(assistantResponse);
-
       setMessages((previousMessages) => [
         ...previousMessages,
         assistantMessage,
       ]);
+
+      // Store response only for speaker button
+      setLastAssistantResponse(assistantResponse);
     } catch (error) {
       console.error("Chat error:", error);
+
+      const errorMessage =
+        "Sorry, something went wrong. Please try again.";
 
       setMessages((previousMessages) => [
         ...previousMessages,
         {
           id: Date.now() + 1,
-          message:
-            "Sorry, something went wrong. Please try again.",
+          message: errorMessage,
           sender: "assistant",
         },
       ]);
+
+      setLastAssistantResponse(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Called when SpeechRecognition gets text
-  const handleTranscript = (transcript) => {
-    setInput(transcript);
+  // --------------------------------------------------
+  // SPEECH-TO-TEXT
+  // --------------------------------------------------
 
-    // Automatically send the recognized voice text
-    sendMessage(transcript);
-  };
+  const handleTranscript = useCallback(
+    (transcript) => {
+      if (!transcript?.trim()) {
+        return;
+      }
+
+      setInput(transcript);
+
+      // Automatically send recognized speech
+      sendMessage(transcript);
+    },
+    [language, loading]
+  );
+
+  // --------------------------------------------------
+  // ENTER KEY
+  // --------------------------------------------------
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -125,9 +193,7 @@ export default function ChatWindow() {
 
         <select
           value={language}
-          onChange={(event) =>
-            setLanguage(event.target.value)
-          }
+          onChange={handleLanguageChange}
           className="rounded-lg border border-green-200 px-3 py-2 text-sm outline-none focus:border-green-500"
         >
           <option value="en-IN">
@@ -181,7 +247,7 @@ export default function ChatWindow() {
           <VoiceButton
             language={language}
             onTranscript={handleTranscript}
-            textToSpeak="{lastAssistantResponse}"
+            textToSpeak={lastAssistantResponse}
           />
 
           {/* Send Button */}
