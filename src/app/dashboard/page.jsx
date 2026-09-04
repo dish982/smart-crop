@@ -10,7 +10,8 @@ import {
   Sprout, 
   ScanSearch, 
   TrendingUp, 
-  User, 
+  User,
+  Mic, 
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { name: 'Disease Detection', href: '/dashboard/disease-detect', icon: ScanSearch },
   { name: 'Market Prices', href: '/dashboard/mandi-prices', icon: TrendingUp },
   { name: 'Profile', href: '/dashboard/farmer-details', icon: User },
+  { name: 'Voice Assistant',href: '/dashboard/voice-assistant',icon:Mic},
 ];
 
 export default async function DashboardLayout({ children }) {
