@@ -37,7 +37,7 @@ export async function POST(request) {
     }
 
     const token = jwt.sign(
-      { userId: user._id, name: user.name, state: user.state || "", phone: user.phone, role: user.role || "Farmer" },
+      { userId: user._id, name: user.name, state: user.state || "", phone: user.phone, role: user.role || "Farmer", district: user.district || "No district set" },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -49,7 +49,8 @@ export async function POST(request) {
           id: user._id, 
           name: user.name, 
           phone: user.phone,
-          state: user.state || '' 
+          state: user.state || '' ,
+          district: user.district
         },
       },
       { status: 200 }
