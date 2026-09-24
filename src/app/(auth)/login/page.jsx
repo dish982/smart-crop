@@ -34,8 +34,12 @@ export default function LoginPage() {
         throw new Error(data.error || 'Invalid credentials');
       }
 
-      router.replace('/dashboard');
-      router.refresh();
+      // DYNAMIC REDIRECTION BASED ON ROLE
+      if (data.user?.role === 'Admin') {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/dashboard';
+      }
     } catch (err) {
       setError(err.message);
     } finally {

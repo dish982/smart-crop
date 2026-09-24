@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 const THIRTY_DAYS = 30 * 24 * 60 * 60;
 
 export async function POST(request) {
@@ -36,28 +36,49 @@ export async function POST(request) {
       );
     }
 
+    // Default to 'Farmer' if role field is missing in document
+    const userRole = user.role || 'Farmer';
+
     const token = jwt.sign(
-      { userId: user._id, name: user.name, state: user.state || "", phone: user.phone, role: user.role || "Farmer", district: user.district || "No district set" },
+      { 
+        userId: user._id, 
+        name: user.name, 
+        state: user.state || "", 
+        phone: user.phone, 
+        role: userRole, 
+        district: user.district || "No district set" 
+      },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
 
-      const response = NextResponse.json(
+    const response = NextResponse.json(
       {
         message: 'Login successful',
         user: { 
           id: user._id, 
           name: user.name, 
           phone: user.phone,
-          state: user.state || '' ,
+          role: userRole, // CRITICAL FIX: Returning role in JSON payload
+          state: user.state || '',
           district: user.district
         },
       },
       { status: 200 }
     );
 
+    // Cookie 1: Auth Token
     response.cookies.set('auth_token', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: THIRTY_DAYS,
+    });
+
+    // Cookie 2: User Role for Middleware route checks
+    response.cookies.set('user_role', userRole, {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',

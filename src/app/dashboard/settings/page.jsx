@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Globe, Save, CheckCircle } from "lucide-react";
-import { CustomSelect } from "@/components/common/CustomSelect";
 
 export default function SettingsPage() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
