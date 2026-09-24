@@ -363,7 +363,7 @@ export default function DiseaseDetect() {
 
           {/* IMAGE UPLOAD */}
 
-          <label className="border-2 border-dashed border-border-light hover:border-primary-green rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all bg-surface-muted/50 min-h-[220px]">
+          <label className="border-2 border-dashed border-border-light hover:border-primary-green rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all bg-surface-muted/50 min-h-55">
 
             {preview ? (
               <img
@@ -423,7 +423,7 @@ export default function DiseaseDetect() {
 
           {error && (
             <div className="p-3 bg-red-50 text-accent-cherry border border-red-200 rounded-lg text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               {error}
             </div>
           )}
@@ -457,7 +457,7 @@ export default function DiseaseDetect() {
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                 <div className="flex items-start gap-3">
 
-                  <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                  <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
 
                   <div>
                     <p className="font-bold text-amber-900">
@@ -596,7 +596,7 @@ export default function DiseaseDetect() {
                     key={idx}
                     className="flex items-start gap-2 text-xs text-text-subtle"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-primary-green flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-primary-green shrink-0 mt-0.5" />
                     <span>{symptom}</span>
                   </li>
                 ))}
@@ -615,7 +615,7 @@ export default function DiseaseDetect() {
                   key={idx}
                   className="flex items-start gap-2 text-xs text-text-subtle"
                 >
-                  <ShieldCheck className="w-4 h-4 text-primary-green flex-shrink-0 mt-0.5" />
+                  <ShieldCheck className="w-4 h-4 text-primary-green shrink-0 mt-0.5" />
                   <span>{prec}</span>
                 </li>
               ))}

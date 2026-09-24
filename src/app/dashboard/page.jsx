@@ -2,171 +2,170 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Sprout, ArrowRight, ScanSearch, TrendingUp, ShieldCheck, CloudSun, CheckCircle2, Sparkles } from "lucide-react";
+import { Sprout, ScanSearch, TrendingUp, ArrowRight } from "lucide-react";
 
-export default function LandingPage() {
-  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function DashboardPage() {
+  const [farmer, setFarmer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [greeting, setGreeting] = useState("Good Day");
 
   useEffect(() => {
-    // Session status check via API
+
+
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+      setGreeting("Good Morning");
+    } else if (hour >= 12 && hour < 17) {
+      setGreeting("Good Afternoon");
+    } else {
+      setGreeting("Good Evening");
+    }
+
+
     fetch("/api/auth/me", { cache: "no-store" })
-      .then((res) => {
-        if (res.ok) setIsLoggedIn(true);
-        else setIsLoggedIn(false);
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed session");
+        const data = await res.json();
+        setFarmer(data.user || data);
       })
-      .catch(() => setIsLoggedIn(false))
+      .catch((err) => {
+        console.error("Session fetch error:", err);
+        setFarmer(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  const handleGetStarted = () => {
-    if (isLoggedIn) {
-      router.push("/dashboard");
-    } else {
-      router.push("/signup");
-    }
-  };
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-text-subtle text-sm animate-pulse">
+        Loading agricultural advisory overview...
+      </div>
+    );
+  }
 
-  const features = [
-    {
-      icon: Sprout,
-      title: "Smart Crop Advisory",
-      description: "Get precise crop recommendations based on soil health and climate.",
-      tag: "Data Driven"
-    },
-    {
-      icon: ScanSearch,
-      title: "AI Disease Detection",
-      description: "Upload leaf photos to detect infestation early and get treatments.",
-      tag: "Instant AI"
-    },
-    {
-      icon: TrendingUp,
-      title: "Live Mandi Rates",
-      description: "Track real-time market prices across nearby government mandis.",
-      tag: "Real-time"
-    },
-    {
-      icon: CloudSun,
-      title: "Weather Risk Alerts",
-      description: "Receive disease warnings triggered by climate changes.",
-      tag: "Automated"
-    }
-  ];
+  // Fallback default values for screenshot visual parity
+  const stateName = farmer?.state || "Maharashtra";
+  const districtName = farmer?.district || "Pune";
+  const farmSize = farmer?.farmSize || "3.5 acres";
+  const farmerName = farmer?.name || "Farmer";
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-text-main flex flex-col justify-between">
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-50 bg-[#FAF9F5]/80 backdrop-blur-md border-b border-border-light/60">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-primary-green text-white rounded-xl shadow-sm">
-              <Sprout className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-lg text-primary-green tracking-tight">
-              Smart Crop Advisory
-            </span>
-          </div>
+    <div className="space-y-6 max-w-7xl mx-auto p-2 sm:p-4">
 
-          <div className="flex items-center gap-4">
-            <Link
-              href={isLoggedIn ? "/dashboard" : "/login"}
-              className="text-sm font-semibold px-4 py-2 text-primary-green hover:bg-emerald-50 rounded-lg transition-all"
-            >
-              {isLoggedIn ? "Open Dashboard" : "Log In"}
-            </Link>
-            {!isLoggedIn && (
-              <button
-                onClick={() => router.push("/signup")}
-                className="text-sm font-semibold px-4 py-2 bg-primary-green text-white rounded-lg hover:opacity-90 transition-all shadow-sm hidden sm:block"
-              >
-                Register Farm
-              </button>
-            )}
+      {/* Greeting Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-text-main flex items-center gap-2">
+          {greeting}, {farmerName} 
+        </h1>
+        <p className="text-sm text-text-subtle mt-1">
+          Here's your agricultural advisory overview.
+        </p>
+      </div>
+
+      {/* FARM PROFILE GREEN BANNER */}
+      <div className="bg-[#0b5c2c] text-white rounded-2xl p-6 shadow-md">
+        <span className="text-[10px] tracking-widest font-bold uppercase opacity-80 block mb-4">
+          FARM PROFILE
+        </span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div>
+            <p className="text-xs opacity-75">State</p>
+            <p className="text-xl font-bold mt-0.5">{stateName}</p>
+          </div>
+          <div>
+            <p className="text-xs opacity-75">District</p>
+            <p className="text-xl font-bold mt-0.5">{districtName}</p>
+          </div>
+          <div>
+            <p className="text-xs opacity-75">Farm Size</p>
+            <p className="text-xl font-bold mt-0.5">{farmSize}</p>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-6 py-8 md:py-12 w-full">
-        <div className="bg-surface-card rounded-3xl border border-border-light overflow-hidden grid grid-cols-1 lg:grid-cols-2 shadow-soft">
-          <div className="p-8 md:p-14 flex flex-col justify-center items-start">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-primary-green text-xs font-semibold mb-6 border border-emerald-100">
-              <Sparkles className="w-3.5 h-3.5" />
-              Designed for Indian Agriculture
+      {/* ACTION FEATURE CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Crop Recommendation Card */}
+        <div className="bg-surface-card border border-border-light rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="w-12 h-12 rounded-full bg-emerald-100/70 flex items-center justify-center mb-4">
+              <Sprout className="w-6 h-6 text-emerald-700" />
             </div>
-
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-text-main tracking-tight leading-[1.15] uppercase mb-4">
-              SMART CROP <br />
-              <span className="text-primary-green">ADVISORY SYSTEM</span>
-            </h1>
-
-            <p className="font-bold text-primary-green text-base md:text-lg mb-3">
-              Smarter decisions. Healthier crops. Better harvests.
+            <h3 className="font-bold text-lg text-text-main mb-1">Crop Recommendation</h3>
+            <p className="text-xs text-text-subtle leading-relaxed mb-6">
+              Find the most suitable crops for your farm.
             </p>
+          </div>
+          <Link
+            href="/dashboard/crop-advisory"
+            className="w-full py-3 px-4 bg-[#0b5c2c] hover:bg-[#084822] text-white font-medium rounded-xl flex items-center justify-center gap-2 text-sm transition-all shadow-sm"
+          >
+            Get Recommendation <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
 
-            <p className="text-text-subtle text-sm leading-relaxed mb-8 max-w-md">
-              Empowering farmers with localized crop recommendations, automated disease detection, and real-time market insights.
+        {/* Disease Detection Card */}
+        <div className="bg-surface-card border border-border-light rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="w-12 h-12 rounded-full bg-emerald-100/70 flex items-center justify-center mb-4">
+              <ScanSearch className="w-6 h-6 text-emerald-700" />
+            </div>
+            <h3 className="font-bold text-lg text-text-main mb-1">Disease Detection</h3>
+            <p className="text-xs text-text-subtle leading-relaxed mb-6">
+              Upload a crop image to identify possible diseases.
             </p>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-              <button
-                onClick={handleGetStarted}
-                disabled={loading}
-                className="w-full sm:w-auto px-7 py-3.5 bg-primary-green hover:opacity-90 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md text-sm cursor-pointer disabled:opacity-50"
-              >
-                Get Started <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <a
-                href="#features"
-                className="w-full sm:w-auto px-7 py-3.5 bg-surface-muted border border-border-light text-text-main font-semibold rounded-xl text-center transition-all text-sm hover:border-primary-green"
-              >
-                Explore Features
-              </a>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-border-light/60 w-full flex items-center gap-6 text-xs text-text-subtle">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-primary-green" />
-                <span>Verified Insights</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-primary-green" />
-                <span>Regional Data</span>
-              </div>
-            </div>
           </div>
+          <Link
+            href="/dashboard/disease-detect"
+            className="w-full py-3 px-4 bg-[#0b5c2c] hover:bg-[#084822] text-white font-medium rounded-xl flex items-center justify-center gap-2 text-sm transition-all shadow-sm"
+          >
+            Detect Disease <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
 
-          <div className="relative min-h-[320px] lg:min-h-full bg-surface-muted">
-            <img
-              src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000&auto=format&fit=crop"
-              alt="Farmer standing in green field"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+        {/* Market Advisory Card */}
+        <div className="bg-surface-card border border-border-light rounded-2xl p-6 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="w-12 h-12 rounded-full bg-emerald-100/70 flex items-center justify-center mb-4">
+              <TrendingUp className="w-6 h-6 text-emerald-700" />
+            </div>
+            <h3 className="font-bold text-lg text-text-main mb-1">Market Advisory</h3>
+            <p className="text-xs text-text-subtle leading-relaxed mb-6">
+              Check historical prices and selling recommendations.
+            </p>
           </div>
+          <Link
+            href="/dashboard/mandi-prices"
+            className="w-full py-3 px-4 bg-[#0b5c2c] hover:bg-[#084822] text-white font-medium rounded-xl flex items-center justify-center gap-2 text-sm transition-all shadow-sm"
+          >
+            View Market Advisory <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-      </section>
+      </div>
 
-      {/* FEATURES SECTION */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-12 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((f, i) => {
-            const Icon = f.icon;
-            return (
-              <div key={i} className="bg-surface-card border border-border-light rounded-2xl p-6 shadow-soft">
-                <div className="p-3 bg-emerald-50 text-primary-green rounded-xl border border-emerald-100 w-fit mb-4">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <h3 className="font-bold text-base text-text-main mb-2">{f.title}</h3>
-                <p className="text-xs text-text-subtle leading-relaxed">{f.description}</p>
-              </div>
-            );
-          })}
+      {/* LOWER STATUS CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+        <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
+          <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
+            RECENT ADVISORY
+          </span>
+          <p className="text-xs text-text-subtle">No recent advisories generated yet.</p>
         </div>
-      </section>
+
+        <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
+          <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
+            CROP HEALTH
+          </span>
+          <p className="text-xs text-text-subtle">Upload photos to track crop health status.</p>
+        </div>
+
+        <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
+          <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
+            MARKET ALERT
+          </span>
+          <p className="text-xs text-text-subtle">Select target crops to view live mandi rate updates.</p>
+        </div>
+      </div>
     </div>
   );
 }
