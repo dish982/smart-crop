@@ -7,7 +7,6 @@ import {
   Sprout, 
   TrendingUp, 
   Clock, 
-  AlertCircle, 
   Loader2 
 } from 'lucide-react';
 import LogoutButton from '@/components/auth/LogoutButton';
@@ -16,32 +15,30 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
     async function fetchAnalytics() {
-        try {
+      try {
         const res = await fetch('/api/admin/analytics');
         
-        // Safety check for non-JSON responses (e.g. 404/500 HTML pages)
         const contentType = res.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
-            const text = await res.text();
-            throw new Error(`Expected JSON but got HTML/Text (Status: ${res.status})`);
+          throw new Error(`Expected JSON but got HTML/Text (Status: ${res.status})`);
         }
 
         const result = await res.json();
         if (result.success) {
-            setData(result.data);
+          setData(result.data);
         } else {
-            console.error('Analytics API Error:', result.error);
+          console.error('Analytics API Error:', result.error);
         }
-        } catch (err) {
+      } catch (err) {
         console.error('Failed to load admin analytics:', err.message);
-        } finally {
+      } finally {
         setLoading(false);
-        }
+      }
     }
     fetchAnalytics();
-    }, []);
+  }, []);
 
   if (loading) {
     return (
@@ -52,6 +49,40 @@ export default function AdminDashboard() {
   }
 
   const { totalFarmers, totalChecks, diseaseBreakdown, recentLogs } = data || {};
+
+  // Filter out uncertain/invalid scans from actual top disease trends
+  const filteredDiseases = diseaseBreakdown?.filter((item) => {
+    if (!item._id) return false;
+    const diseaseName = item._id.toLowerCase();
+    return !diseaseName.includes('uncertain') && !diseaseName.includes('not detected');
+  }) || [];
+
+  // Helper function to format result data cleanly
+  const renderResultSummary = (resultData) => {
+    if (!resultData) return 'N/A';
+
+    let parsed = resultData;
+    if (typeof resultData === 'string') {
+      try {
+        parsed = JSON.parse(resultData);
+      } catch {
+        return resultData;
+      }
+    }
+
+    if (typeof parsed === 'object' && parsed !== null) {
+      if (parsed.prediction) {
+        const cleanName = parsed.prediction
+          .replace(/___/g, ': ')
+          .replace(/_/g, ' ');
+        return `${cleanName} (${parsed.confidence || 0}%)`;
+      }
+      if (parsed.crop) return `Crop Recommendation: ${parsed.crop}`;
+      if (parsed.message) return parsed.message;
+    }
+
+    return String(resultData);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
@@ -109,11 +140,11 @@ export default function AdminDashboard() {
       {/* TOP DISEASES TRENDS */}
       <div className="bg-surface-card border border-border-light p-6 rounded-xl shadow-sm space-y-4">
         <h2 className="font-bold text-lg text-text-main">Top Detected Crop Diseases</h2>
-        {diseaseBreakdown?.length === 0 ? (
-          <p className="text-sm text-text-subtle">No disease detection data recorded yet.</p>
+        {filteredDiseases.length === 0 ? (
+          <p className="text-sm text-text-subtle">No verified disease detection data recorded yet.</p>
         ) : (
           <div className="space-y-3">
-            {diseaseBreakdown?.map((item, idx) => (
+            {filteredDiseases.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between p-3 bg-surface-muted rounded-lg text-sm">
                 <span className="font-medium text-text-main">
                   {item._id ? item._id.replace(/___/g, ': ').replace(/_/g, ' ') : 'Unknown Condition'}
@@ -160,9 +191,7 @@ export default function AdminDashboard() {
                   </td>
                   <td className="py-3 px-4 text-text-main">{log.title}</td>
                   <td className="py-3 px-4 text-xs text-text-subtle max-w-xs truncate">
-                    {typeof log.resultData === 'string'
-                      ? log.resultData
-                      : JSON.stringify(log.resultData)}
+                    {renderResultSummary(log.resultData)}
                   </td>
                   <td className="py-3 px-4 text-xs text-text-subtle whitespace-nowrap">
                     {new Date(log.createdAt).toLocaleDateString()}

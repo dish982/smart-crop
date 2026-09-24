@@ -13,12 +13,28 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+      const { name, value } = e.target;
+
+      // Direct check for Phone Number input
+      if (name === 'phone') {
+        // Sirf numbers allowed hain aur max length strictly 10 digits tak restrict hogi
+        const numericValue = value.replace(/\D/g, '').slice(0, 10);
+        setFormData({ ...formData, phone: numericValue });
+      } else {
+        setFormData({ ...formData, [name]: value });
+      }
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Extra Validation for strictly 10 digits
+    if (formData.phone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -83,6 +99,7 @@ export default function LoginPage() {
               placeholder="Enter 10-digit mobile number"
               value={formData.phone}
               onChange={handleChange}
+              maxLength={10}
               className="input-agri text-lg"
             />
           </div>

@@ -31,11 +31,25 @@ export default function SignupPage() {
   const isPasswordValid = Object.values(passwordValidations).every(Boolean);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Strict 10-digit numeric handling for Phone Number
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData({ ...formData, phone: numericValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation for Phone Number
+    if (formData.phone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     // Secondary submit check for safety
     if (!isPasswordValid) {
@@ -119,8 +133,8 @@ export default function SignupPage() {
               placeholder="Enter 10-digit mobile number"
               value={formData.phone}
               onChange={handleChange}
+              maxLength={10}
               className="input-agri text-lg"
-              minLength={10}
             />
           </div>
 
@@ -141,28 +155,28 @@ export default function SignupPage() {
 
             {/* Password Validation Rules Checklist */}
             {(showPasswordRules || formData.password.length > 0) && (
-            <div className="mt-3 p-3 bg-surface-muted rounded-lg border border-border-light space-y-1.5 text-xs">
-              <p className="font-semibold text-text-subtle mb-1">
-                Password requirements:
-              </p>
-              
-              <ValidationRule 
-                isValid={passwordValidations.minLength} 
-                text="At least 8 characters" 
-              />
-              <ValidationRule 
-                isValid={passwordValidations.hasUppercase} 
-                text="At least one uppercase letter (A-Z)" 
-              />
-              <ValidationRule 
-                isValid={passwordValidations.hasLowercase} 
-                text="At least one lowercase letter (a-z)" 
-              />
-              <ValidationRule 
-                isValid={passwordValidations.hasDigit} 
-                text="At least one number (0-9)" 
-              />
-            </div>
+              <div className="mt-3 p-3 bg-surface-muted rounded-lg border border-border-light space-y-1.5 text-xs">
+                <p className="font-semibold text-text-subtle mb-1">
+                  Password requirements:
+                </p>
+                
+                <ValidationRule 
+                  isValid={passwordValidations.minLength} 
+                  text="At least 8 characters" 
+                />
+                <ValidationRule 
+                  isValid={passwordValidations.hasUppercase} 
+                  text="At least one uppercase letter (A-Z)" 
+                />
+                <ValidationRule 
+                  isValid={passwordValidations.hasLowercase} 
+                  text="At least one lowercase letter (a-z)" 
+                />
+                <ValidationRule 
+                  isValid={passwordValidations.hasDigit} 
+                  text="At least one number (0-9)" 
+                />
+              </div>
             )}
           </div>
 
