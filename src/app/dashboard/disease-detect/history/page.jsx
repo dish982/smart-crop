@@ -6,6 +6,7 @@ import {
   History, CheckCircle2, XCircle, HelpCircle, Loader2, Calendar,
   AlertCircle, ArrowLeft, AlertTriangle, Sprout, ChevronDown, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
+import { formatDate } from '@/lib/formatDate';
 
 export default function DiseaseHistoryPage() {
   const [historyLogs, setHistoryLogs] = useState([]);
