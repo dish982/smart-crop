@@ -7,13 +7,19 @@ import {
   MessageSquareText, 
   Settings, 
   Sprout, 
-  LogOut 
+  LogOut ,
+  UserIcon
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Chatbot", href: "/dashboard/chat", icon: MessageSquareText },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
+];
+
+const MOBILE_NAV_ITEMS = [
+  ...NAV_ITEMS,
+  { label: "Profile", href: "/dashboard/profile", icon: UserIcon },
 ];
 
 export default function Sidebar({ user }) {
@@ -100,35 +106,35 @@ export default function Sidebar({ user }) {
           </nav>
         </div>
 
-        {/* USER PROFILE & LOGOUT */}
-        <div className="pt-6 border-t border-border-light/60 flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-11 h-11 shrink-0 rounded-full bg-[#273229] text-white font-bold flex items-center justify-center border-2 border-emerald-400 text-base shadow-sm">
-              {firstLetter}
-            </div>
-            <div className="overflow-hidden min-w-0">
-              <p className="font-bold text-base text-text-main leading-tight truncate">
-                {userName}
-              </p>
-              <p className="text-xs text-text-subtle leading-tight truncate mt-0.5">
-                {userSubtext}
-              </p>
-            </div>
-          </div>
+          {/* USER PROFILE & LOGOUT */}
+          <div className="pt-6 border-t border-border-light/60 flex items-center justify-between">
+            <Link href="/dashboard/profile" className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">
+              <div className="w-11 h-11 shrink-0 rounded-full bg-[#273229] text-white font-bold flex items-center justify-center border-2 border-emerald-400 text-base shadow-sm">
+                {firstLetter}
+              </div>
+              <div className="overflow-hidden min-w-0">
+                <p className="font-bold text-base text-text-main leading-tight truncate">
+                  {userName}
+                </p>
+                <p className="text-xs text-text-subtle leading-tight truncate mt-0.5">
+                  {userSubtext}
+                </p>
+              </div>
+            </Link>
 
-          <button
-            onClick={handleLogout}
-            title="Logout"
-            className="p-2.5 text-text-subtle hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer shrink-0"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
-        </div>
+            <button
+              onClick={handleLogout}
+              title="Logout"
+              className="p-2.5 text-text-subtle hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer shrink-0"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
       </aside>
 
       {/* MOBILE BOTTOM NAV */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#FAF9F5] border-t border-border-light/60 flex justify-around py-2.5 z-50 shadow-md">
-        {NAV_ITEMS.map((item) => {
+        {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
 

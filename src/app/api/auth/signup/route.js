@@ -9,7 +9,7 @@ const THIRTY_DAYS = 30 * 24 * 60 * 60; // in seconds
 
 export async function POST(request) {
   try {
-    const { name, phone, password, state, district } = await request.json();
+    const { name, phone, password, state, district, language } = await request.json();
 
     if (!name || !phone || !password) {
       return NextResponse.json(
@@ -35,6 +35,7 @@ export async function POST(request) {
       password: hashedPassword,
       state: state || '',
       district: district || '',
+      language: language || 'en',
     });
 
     // Generate JWT Token valid for 30 days

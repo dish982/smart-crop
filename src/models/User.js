@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema(
     state: { type: String, default: '' },
     district: { type: String, default: '' },
     role: { type: String, enum: ['Farmer', 'Admin'], default: 'Farmer' },
+    language: { type: String, enum: ['en', 'hi', 'mr'], default: 'en' },
   },
   { timestamps: true }
 );

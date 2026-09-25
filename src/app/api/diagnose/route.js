@@ -2,19 +2,21 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { connectToDatabase } from '@/lib/mongodb';
 import FarmerHistory from '@/models/FarmerHistory';
-import DiseaseAdvisory from '@/models/DiseaseAdvisory';
+import { DISEASE_KNOWLEDGE_BASE } from '@/data/diseaseData';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 function getUserFromCookie(request) {
   try {
     const token = request.cookies.get('auth_token')?.value;
     if (!token) return null;
     return jwt.verify(token, JWT_SECRET);
-  } catch (err) {
+  } catch {
     return null;
   }
 }
+
+const CONFIDENCE_THRESHOLD = 60.0;
 
 export async function POST(request) {
   try {
@@ -28,74 +30,42 @@ export async function POST(request) {
     }
 
     await connectToDatabase();
-
     const confidence = Number(confidenceScore);
-    const CONFIDENCE_THRESHOLD = 60.0;
+    const isLowConfidence = confidence < CONFIDENCE_THRESHOLD;
 
-    // 1. Check Low Confidence Cutoff
-    if (confidence < CONFIDENCE_THRESHOLD) {
-      const lowConfResult = {
-        prediction: 'Uncertain / Clear Leaf Not Detected',
-        confidence,
-        isLowConfidence: true,
-        icarNotes: 'Confidence score below 60%. As per ICAR protocol, please retake a clear photo under better light.',
-        treatment: {
-          chemical: [],
-          organic: ['Retake photo focusing on affected leaf spots.'],
-          dosage: 'N/A',
-          prevention: ['Ensure leaf is well-lit and in clear focus.'],
-        },
-      };
+    const knowledge = DISEASE_KNOWLEDGE_BASE[predictedClass];
+    const displayName = predictedClass.replace(/___/g, ': ').replace(/_/g, ' ');
 
-      const user = getUserFromCookie(request);
-      let lowConfLog = null;
-      if (user?.userId) {
-        lowConfLog = await FarmerHistory.create({
-          userId: user.userId,
-          type: 'disease',
-          title: `Scan Uncertain (${cropName || 'Crop'}) - ${confidence.toFixed(1)}%`,
-          inputData: { imageUrl, cropName },
-          resultData: lowConfResult,
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...lowConfResult,
-          historyId: lowConfLog ? lowConfLog._id : null,
-        },
-      });
-    }
-
-    // 2. Fetch Advisory Lookup
-    let advisory = await DiseaseAdvisory.findOne({ diseaseKey: predictedClass });
-
-    if (!advisory) {
-      advisory = {
-        displayName: predictedClass.replace(/___|_/g, ' '),
-        icarApproved: true,
-        icarGuidelines: 'Complies with ICAR Integrated Pest Management (IPM) guidelines.',
-        treatment: {
-          chemical: ['Copper Oxychloride 50% WP @ 2.5 g/L water'],
-          organic: ['Neem oil spray (5ml/L water)'],
-          dosage: 'Spray twice at 10-day intervals upon early symptom notice.',
-          prevention: ['Ensure proper field drainage and destroy infected crop debris.'],
-        },
-      };
-    }
+    const advisory = knowledge
+      ? {
+          verified: true,
+          note: `Standard Integrated Pest Management (IPM) guidance for this condition.`,
+          treatment: knowledge.treatment,
+        }
+      : {
+          verified: false,
+          note: 'No specific advisory on file for this exact condition yet — general guidance shown below.',
+          treatment: {
+            chemical: [],
+            organic: ['Consult your local agricultural extension officer for a targeted treatment plan.'],
+            dosage: 'N/A',
+            prevention: ['Ensure proper field drainage and destroy infected crop debris.'],
+          },
+        };
 
     const resultPayload = {
-      prediction: advisory.displayName,
-      confidence,
-      isLowConfidence: false,
-      icarVerified: advisory.icarApproved,
-      icarNotes: advisory.icarGuidelines,
+      prediction: displayName,
+      confidence, 
+      isLowConfidence,
+      lowConfidenceWarning: isLowConfidence
+        ? 'Confidence is below 60%, so this result may be unreliable even if it looks correct. For a more accurate reading, try retaking the photo: get closer to a single affected leaf, use even daylight (avoid harsh shadows or glare), and keep the leaf flat against a plain background.'
+        : null,
+      icarVerified: advisory.verified,
+      icarNotes: advisory.note,
       treatment: advisory.treatment,
       farmerConfirmed: null,
     };
 
-    // 3. Save Log and Return Document ID
     const user = getUserFromCookie(request);
     let savedHistory = null;
 
@@ -103,7 +73,7 @@ export async function POST(request) {
       savedHistory = await FarmerHistory.create({
         userId: user.userId,
         type: 'disease',
-        title: `Diagnosed: ${advisory.displayName}`,
+        title: `Diagnosed: ${displayName} (${confidence.toFixed(1)}%)`,
         inputData: { imageUrl, cropName },
         resultData: resultPayload,
       });
@@ -111,10 +81,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        ...resultPayload,
-        historyId: savedHistory ? savedHistory._id : null,
-      },
+      data: { ...resultPayload, historyId: savedHistory ? savedHistory._id : null },
     });
   } catch (error) {
     console.error('DIAGNOSE API ERROR:', error);

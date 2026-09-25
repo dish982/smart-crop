@@ -167,7 +167,8 @@ export default function AdminDashboard() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm">
             <thead>
               <tr className="border-b border-border-light text-text-subtle text-xs uppercase">
@@ -201,7 +202,25 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list */}
+        <div className="md:hidden space-y-3">
+          {recentLogs?.map((log) => (
+            <div key={log._id} className="bg-surface-muted rounded-lg p-4 space-y-1.5 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-text-main">{log.userId?.name || 'Anonymous Farmer'}</span>
+                <span className="uppercase text-[10px] font-bold px-2 py-0.5 rounded bg-gray-100 border text-text-subtle">
+                  {log.type}
+                </span>
+              </div>
+              <p className="text-text-main">{log.title}</p>
+              <p className="text-xs text-text-subtle">{renderResultSummary(log.resultData)}</p>
+              <p className="text-xs text-text-subtle">{new Date(log.createdAt).toLocaleDateString()}</p>
+            </div>
+          ))}
+        </div>
       </div>
+
       <LogoutButton />
     </div>
   );

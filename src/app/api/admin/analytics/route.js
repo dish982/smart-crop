@@ -8,9 +8,7 @@ export async function GET() {
     await connectToDatabase();
 
     // 1. Total Farmers Count (Case-insensitive check for 'Farmer')
-    const totalFarmers = await User.countDocuments({
-      role: { $regex: /^farmer$/i },
-    });
+    const totalFarmers = await User.countDocuments({ role: 'Farmer' });
 
     // 2. Count by Activity Type (disease, crop, market, chat)
     const typeCounts = await FarmerHistory.aggregate([
@@ -43,7 +41,7 @@ export async function GET() {
 
     // 4. Recent Farmer Activity Logs
     const recentLogs = await FarmerHistory.find()
-      .populate('userId', 'name email phone')
+      .populate('userId', 'name phone')
       .sort({ createdAt: -1 })
       .limit(20);
 

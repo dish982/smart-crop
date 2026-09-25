@@ -104,6 +104,15 @@ export default function DiseaseDetect() {
     return null;
   };
 
+  const getThumbnailBase64 = (imgEl, maxDim = 200) => {
+    const canvas = document.createElement('canvas');
+    const scale = Math.min(1, maxDim / Math.max(imgEl.width, imgEl.height));
+    canvas.width = imgEl.width * scale;
+    canvas.height = imgEl.height * scale;
+    canvas.getContext('2d').drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.6);
+  };
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -127,12 +136,16 @@ export default function DiseaseDetect() {
         image.src = imageUrl;
       });
 
-      const input = tf.browser
-        .fromPixels(image)
-        .resizeBilinear([224, 224])
-        .toFloat()
-        .div(255)
-        .expandDims(0);
+      const thumbnail = getThumbnailBase64(image);
+
+      const input = tf.tidy(() =>
+        tf.browser
+          .fromPixels(image)
+          .resizeBilinear([224, 224])
+          .toFloat()
+          .div(255)
+          .expandDims(0)
+      );
 
       URL.revokeObjectURL(imageUrl);
 
@@ -164,12 +177,12 @@ export default function DiseaseDetect() {
       const predictedClass = getClassNameFromIndex(selectedCropTopIndex);
       const confidenceScore = Number((selectedCropTopProbability * 100).toFixed(2));
 
-      // Guard: Random / Low confidence image filter
-      if (confidenceScore < 60) {
-        setError('Uploaded photo leaf nahi lag rahi hai ya image unclear hai. Please clear photo upload karein.');
-        setLoading(false);
-        return;
-      }
+      // // Guard: Random / Low confidence image filter
+      // if (confidenceScore < 60) {
+      //   setError('Uploaded photo leaf nahi lag rahi hai ya image unclear hai. Please clear photo upload karein.');
+      //   setLoading(false);
+      //   return;
+      // }
 
       setResult({
         prediction: predictedClass,
@@ -180,7 +193,7 @@ export default function DiseaseDetect() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageUrl: preview,
+          imageUrl: thumbnail,
           cropName: selectedCrop,
           predictedClass,
           confidenceScore,
@@ -247,7 +260,7 @@ export default function DiseaseDetect() {
             Crop Disease Detection
           </h1>
           <p className="text-sm text-text-subtle">
-            Select crop and upload leaf photograph for ICAR-grounded diagnosis.
+            Select crop and upload leaf photograph for AI-based diagnosis and IPM guidance.
           </p>
         </div>
 
@@ -390,6 +403,63 @@ export default function DiseaseDetect() {
                   </span>
                 </div>
               </div>
+              {apiData && (
+                <div className="p-4 bg-surface-muted rounded-xl border border-border-light space-y-3">
+                  <p className="text-xs text-text-subtle uppercase tracking-wider font-semibold">
+                  Treatment & Advisory {apiData.icarVerified && <span className="text-emerald-700">· IPM Guidance</span>}
+                  </p>
+
+                  {apiData.icarNotes && (
+                    <p className="text-xs text-text-main">{apiData.icarNotes}</p>
+                  )}
+
+                  {info.symptoms?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-text-main mb-1">Symptoms</p>
+                      <ul className="list-disc list-inside text-xs text-text-subtle space-y-0.5">
+                        {info.symptoms.map((s, i) => <li key={i}>{s}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {apiData.treatment?.organic?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-emerald-700 mb-1">Organic Treatment</p>
+                      <ul className="list-disc list-inside text-xs text-text-subtle space-y-0.5">
+                        {apiData.treatment.organic.map((t, i) => <li key={i}>{t}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                    {apiData.treatment?.chemical?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-amber-700 mb-1">Chemical Treatment</p>
+                        <ul className="list-disc list-inside text-xs text-text-subtle space-y-0.5">
+                          {apiData.treatment.chemical.map((t, i) => <li key={i}>{t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+
+                    {apiData.treatment?.dosage && (
+                      <p className="text-xs text-text-subtle"><span className="font-bold text-text-main">Dosage:</span> {apiData.treatment.dosage}</p>
+                    )}
+
+                    {apiData.treatment?.prevention?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-text-main mb-1">Prevention</p>
+                        <ul className="list-disc list-inside text-xs text-text-subtle space-y-0.5">
+                          {apiData.treatment.prevention.map((t, i) => <li key={i}>{t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {apiData?.lowConfidenceWarning && (
+                  <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    ⚠️ {apiData.lowConfidenceWarning}
+                  </p>
+                )}
 
               {apiData && (
                 <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-3 mt-4">

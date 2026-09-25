@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { connectToDatabase } from '@/lib/mongodb';
-import FarmerHistory from '@/models/FarmerHistory';
+import User from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -22,28 +22,21 @@ export async function PATCH(request) {
     }
 
     const userId = decoded.id || decoded.userId;
-    const { historyId, confirmed } = await request.json();
-
-    if (!historyId || confirmed === undefined) {
-      return NextResponse.json(
-        { success: false, error: 'historyId and confirmed status required' },
-        { status: 400 }
-      );
-    }
+    const { name, state, district, language } = await request.json();
 
     await connectToDatabase();
 
-    const updatedLog = await FarmerHistory.findOneAndUpdate(
-      { _id: historyId, userId },
-      { $set: { 'resultData.farmerConfirmed': confirmed } },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { name, state, district, language } },
+      { new: true, runValidators: true }
+    ).select('-password');
 
-    if (!updatedLog) {
-      return NextResponse.json({ success: false, error: 'Record not found or not yours' }, { status: 404 });
+    if (!updatedUser) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: updatedLog });
+    return NextResponse.json({ success: true, user: updatedUser });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

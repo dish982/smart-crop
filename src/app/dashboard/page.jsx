@@ -76,10 +76,6 @@ export default function DashboardPage() {
             <p className="text-xs opacity-75">District</p>
             <p className="text-xl font-bold mt-0.5">{districtName}</p>
           </div>
-          <div>
-            <p className="text-xs opacity-75">Farm Size</p>
-            <p className="text-xl font-bold mt-0.5">{farmSize}</p>
-          </div>
         </div>
       </div>
 

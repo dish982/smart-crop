@@ -1,93 +1,93 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { connectToDatabase } from '@/lib/mongodb';
-import User from '@/models/User';
+  import { NextResponse } from 'next/server';
+  import bcrypt from 'bcryptjs';
+  import jwt from 'jsonwebtoken';
+  import { connectToDatabase } from '@/lib/mongodb';
+  import User from '@/models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-const THIRTY_DAYS = 30 * 24 * 60 * 60;
+  const JWT_SECRET = process.env.JWT_SECRET;
+  const THIRTY_DAYS = 30 * 24 * 60 * 60;
 
-export async function POST(request) {
-  try {
-    const { phone, password } = await request.json();
+  export async function POST(request) {
+    try {
+      const { phone, password } = await request.json();
 
-    if (!phone || !password) {
-      return NextResponse.json(
-        { error: 'Phone number and password are required' },
-        { status: 400 }
-      );
-    }
+      if (!phone || !password) {
+        return NextResponse.json(
+          { error: 'Phone number and password are required' },
+          { status: 400 }
+        );
+      }
 
-    await connectToDatabase();
+      await connectToDatabase();
 
-    const user = await User.findOne({ phone });
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid phone number or password' },
-        { status: 401 }
-      );
-    }
+      const user = await User.findOne({ phone });
+      if (!user) {
+        return NextResponse.json(
+          { error: 'Invalid phone number or password' },
+          { status: 401 }
+        );
+      }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return NextResponse.json(
-        { error: 'Invalid phone number or password' },
-        { status: 401 }
-      );
-    }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return NextResponse.json(
+          { error: 'Invalid phone number or password' },
+          { status: 401 }
+        );
+      }
 
-    // Default to 'Farmer' if role field is missing in document
-    const userRole = user.role || 'Farmer';
+      // Default to 'Farmer' if role field is missing in document
+      const userRole = user.role || 'Farmer';
 
-    const token = jwt.sign(
-      { 
-        userId: user._id, 
-        name: user.name, 
-        state: user.state || "", 
-        phone: user.phone, 
-        role: userRole, 
-        district: user.district || "No district set" 
-      },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-
-    const response = NextResponse.json(
-      {
-        message: 'Login successful',
-        user: { 
-          id: user._id, 
+      const token = jwt.sign(
+        { 
+          userId: user._id, 
           name: user.name, 
-          phone: user.phone,
-          role: userRole, // CRITICAL FIX: Returning role in JSON payload
-          state: user.state || '',
-          district: user.district
+          state: user.state || "", 
+          phone: user.phone, 
+          role: userRole, 
+          district: user.district || "No district set" 
         },
-      },
-      { status: 200 }
-    );
+        JWT_SECRET,
+        { expiresIn: '30d' }
+      );
 
-    // Cookie 1: Auth Token
-    response.cookies.set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: THIRTY_DAYS,
-    });
+      const response = NextResponse.json(
+        {
+          message: 'Login successful',
+          user: { 
+            id: user._id, 
+            name: user.name, 
+            phone: user.phone,
+            role: userRole, 
+            state: user.state || '',
+            district: user.district
+          },
+        },
+        { status: 200 }
+      );
 
-    // Cookie 2: User Role for Middleware route checks
-    response.cookies.set('user_role', userRole, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: THIRTY_DAYS,
-    });
+      // Cookie 1: Auth Token
+      response.cookies.set('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: THIRTY_DAYS,
+      });
 
-    return response;
-  } catch (error) {
-    console.error('LOGIN ERROR:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      // Cookie 2: User Role for Middleware route checks
+      response.cookies.set('user_role', userRole, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: THIRTY_DAYS,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('LOGIN ERROR:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
   }
-}

@@ -13,6 +13,7 @@ export default function SignupPage() {
     password: '',
     state: '',
     district: '',
+    language: 'en'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,7 +34,6 @@ export default function SignupPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Strict 10-digit numeric handling for Phone Number
     if (name === 'phone') {
       const numericValue = value.replace(/\D/g, '').slice(0, 10);
       setFormData({ ...formData, phone: numericValue });
@@ -207,6 +207,23 @@ export default function SignupPage() {
                 className="input-agri"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-text-subtle">
+                Preferred Language
+              </label>
+              <select
+                name="language"
+                value={formData.language}
+                onChange={handleChange}
+                className="input-agri"
+              >
+                <option value="en">English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="mr">मराठी (Marathi)</option>
+              </select>
+            </div>
+
           </div>
 
           <button
