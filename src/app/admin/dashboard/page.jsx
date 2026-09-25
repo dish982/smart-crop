@@ -10,6 +10,9 @@ import {
   Loader2 
 } from 'lucide-react';
 import LogoutButton from '@/components/auth/LogoutButton';
+import { formatDate } from '@/lib/formatDate';
+import Link from 'next/link';
+import { FileBarChart } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
@@ -92,6 +95,14 @@ export default function AdminDashboard() {
         <p className="text-sm text-text-subtle mt-1">
           Monitor farmer participation, diagnostic trends, and platform usage metrics.
         </p>
+
+        <Link
+          href="/admin/reports"
+          className="flex items-center gap-2 bg-primary-green text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity"
+        >
+          <FileBarChart className="w-4 h-4" />
+          View Accuracy Reports
+        </Link>
       </div>
 
       {/* OVERVIEW STAT CARDS */}
@@ -195,7 +206,7 @@ export default function AdminDashboard() {
                     {renderResultSummary(log.resultData)}
                   </td>
                   <td className="py-3 px-4 text-xs text-text-subtle whitespace-nowrap">
-                    {new Date(log.createdAt).toLocaleDateString()}
+                    {formatDate(log.createdAt)}
                   </td>
                 </tr>
               ))}
@@ -215,7 +226,7 @@ export default function AdminDashboard() {
               </div>
               <p className="text-text-main">{log.title}</p>
               <p className="text-xs text-text-subtle">{renderResultSummary(log.resultData)}</p>
-              <p className="text-xs text-text-subtle">{new Date(log.createdAt).toLocaleDateString()}</p>
+              <p className="text-xs text-text-subtle">{formatDate(log.createdAt)}</p>
             </div>
           ))}
         </div>

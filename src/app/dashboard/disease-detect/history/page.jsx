@@ -108,9 +108,8 @@ export default function DiseaseHistoryPage() {
             const confirmedStatus = item.resultData?.farmerConfirmed;
             const isLowConfidence = item.resultData?.isLowConfidence;
             const isExpanded = expandedId === item._id;
-            const dateStr = new Date(item.createdAt).toLocaleDateString('en-IN', {
-              day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-            });
+            const dateStr = formatDate(item.createdAt);
+            const timeStr = new Date(item.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
             return (
               <div
@@ -124,7 +123,7 @@ export default function DiseaseHistoryPage() {
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-1.5 text-[11px] text-text-subtle font-medium">
                       <Calendar className="w-3.5 h-3.5 shrink-0" />
-                      <span>{dateStr}</span>
+                      <span>{dateStr} · {timeStr}</span>
                     </div>
                     <h3 title={item.title} className="text-base sm:text-lg font-bold text-primary-green truncate">
                       {item.title}

@@ -9,8 +9,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [greeting, setGreeting] = useState("Good Day");
 
-  useEffect(() => {
+const [recentDiagnoses, setRecentDiagnoses] = useState([]);
 
+useEffect(() => {
+  fetch('/api/history?type=disease')
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) setRecentDiagnoses((data.history || []).slice(0, 3));
+    })
+    .catch(() => {});
+}, []);
+
+  useEffect(() => {
 
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) {
@@ -54,29 +64,12 @@ export default function DashboardPage() {
 
       {/* Greeting Header */}
       <div>
-        <h1 className="text-3xl font-bold text-text-main flex items-center gap-2">
+        <h1 className="text-xl font-bold text-text-main flex items-center gap-2">
           {greeting}, {farmerName} 
         </h1>
         <p className="text-sm text-text-subtle mt-1">
           Here's your agricultural advisory overview.
         </p>
-      </div>
-
-      {/* FARM PROFILE GREEN BANNER */}
-      <div className="bg-[#0b5c2c] text-white rounded-2xl p-6 shadow-md">
-        <span className="text-[10px] tracking-widest font-bold uppercase opacity-80 block mb-4">
-          FARM PROFILE
-        </span>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div>
-            <p className="text-xs opacity-75">State</p>
-            <p className="text-xl font-bold mt-0.5">{stateName}</p>
-          </div>
-          <div>
-            <p className="text-xs opacity-75">District</p>
-            <p className="text-xl font-bold mt-0.5">{districtName}</p>
-          </div>
-        </div>
       </div>
 
       {/* ACTION FEATURE CARDS */}
@@ -150,9 +143,20 @@ export default function DashboardPage() {
 
         <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
           <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
-            CROP HEALTH
+            RECENTLY DIAGNOSED
           </span>
-          <p className="text-xs text-text-subtle">Upload photos to track crop health status.</p>
+          {recentDiagnoses.length === 0 ? (
+            <p className="text-xs text-text-subtle">Upload photos to track crop health status.</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {recentDiagnoses.map((item) => (
+                <li key={item._id} className="text-xs text-text-main flex justify-between">
+                  <span className="truncate">{item.resultData?.prediction}</span>
+                  <span className="text-text-subtle shrink-0 ml-2">{item.resultData?.confidence}%</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">

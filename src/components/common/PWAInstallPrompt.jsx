@@ -28,7 +28,7 @@ export default function PWAInstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999 p-4">
       <div className="bg-surface-card rounded-xl shadow-hover max-w-sm w-full p-6 text-center">
         <h3 className="text-lg font-bold text-text-main mb-2">
           Install Smart Crop Advisory App
