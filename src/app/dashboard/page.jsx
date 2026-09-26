@@ -9,8 +9,19 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [greeting, setGreeting] = useState("Good Day");
 
+  const [recentAdvisory, setRecentAdvisory] = useState([]);
   const [recentDiagnoses, setRecentDiagnoses] = useState([]);
   const [recentMarket, setRecentMarket] = useState([]); 
+
+
+  useEffect(() => {
+  fetch('/api/history?type=crop')
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) setRecentAdvisory((data.history || []).slice(0, 3));
+    })
+    .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch('/api/history?type=disease')
@@ -148,7 +159,25 @@ export default function DashboardPage() {
           <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
             RECENT ADVISORY
           </span>
-          <p className="text-xs text-text-subtle">No recent advisories generated yet.</p>
+          {recentAdvisory.length === 0 ? (
+            <p className="text-xs text-text-subtle">Get a recommendation to see it here.</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {recentAdvisory.map((item) => {
+                const top = item.resultData?.recommendations?.[0];
+                return (
+                  <li key={item._id} className="text-xs text-text-main flex justify-between gap-2">
+                    <span className="truncate capitalize">{top?.crop || "Recommendation"}</span>
+                    {top?.model_probability !== undefined && (
+                      <span className="text-text-subtle shrink-0 ml-2">
+                        {(top.model_probability * 100).toFixed(1)}%
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
         <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">

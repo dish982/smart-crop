@@ -31,6 +31,27 @@ MODEL, SCALER, METADATA = load_model()
 AGRICULTURE = load_agriculture_data()
 SOIL_PROFILES = load_soil_district_profiles()
 
+# Precompute the states/districts/seasons lookup ONCE at startup, instead of
+# recomputing it on every /metadata call. This data is static (built from the
+# training CSVs) and never changes while the server is running, so recomputing
+# it per-request was pure wasted latency on every page load.
+def _build_metadata_cache():
+    states = get_available_states(AGRICULTURE)
+    districts = {
+        state: get_districts_for_state(AGRICULTURE, state)
+        for state in states
+    }
+    seasons = {}
+    for state in states:
+        for district in districts[state]:
+            seasons[f"{state}|||{district}"] = get_seasons_for_state_district(
+                AGRICULTURE, state, district
+            )
+    return {"states": states, "districts": districts, "seasons": seasons}
+
+
+_METADATA_CACHE = _build_metadata_cache()
+
 
 class CropRequest(BaseModel):
     state: str
@@ -105,23 +126,7 @@ def health():
 
 @router.get("/metadata")
 def metadata():
-    states = get_available_states(AGRICULTURE)
-    districts = {
-        state: get_districts_for_state(AGRICULTURE, state)
-        for state in states
-    }
-    seasons = {}
-    for state in states:
-        for district in districts[state]:
-            seasons[f"{state}|||{district}"] = get_seasons_for_state_district(
-                AGRICULTURE, state, district
-            )
-
-    return {
-        "states": states,
-        "districts": districts,
-        "seasons": seasons,
-    }
+    return _METADATA_CACHE
 
 
 @router.post("/recommend-crop")
