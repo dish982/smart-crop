@@ -1,0 +1,117 @@
+{
+  "model_name": "RandomForestClassifier",
+  "artifact_version": 2,
+  "trained_at": "2026-09-25T11:23:55.226186+00:00",
+  "feature_columns": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "classes": [
+    "apple",
+    "banana",
+    "black gram",
+    "chickpea",
+    "coconut",
+    "coffee",
+    "cotton",
+    "grapes",
+    "jute",
+    "kidney beans",
+    "lentil",
+    "maize",
+    "mango",
+    "moth beans",
+    "mung bean",
+    "muskmelon",
+    "orange",
+    "papaya",
+    "pigeon peas",
+    "pomegranate",
+    "rice",
+    "watermelon"
+  ],
+  "n_training_rows": 2200,
+  "rainfall_median": 94.86762427,
+  "feature_ranges": {
+    "N": [
+      0.0,
+      140.0
+    ],
+    "P": [
+      5.0,
+      145.0
+    ],
+    "K": [
+      5.0,
+      205.0
+    ],
+    "temperature": [
+      8.825674745,
+      43.67549305
+    ],
+    "humidity": [
+      14.25803981,
+      99.98187601
+    ],
+    "ph": [
+      3.504752314,
+      9.93509073
+    ],
+    "rainfall": [
+      20.21126747,
+      298.5601175
+    ]
+  },
+  "feature_importances": {
+    "N": 0.10391092991759489,
+    "P": 0.1536698867004944,
+    "K": 0.17917042403350175,
+    "temperature": 0.07584392689844123,
+    "humidity": 0.21193615754422843,
+    "ph": 0.053941070283861414,
+    "rainfall": 0.22152760462187782
+  },
+  "rainfall_definition": {
+    "training_column_documentation": "rainfall in mm (period not stated)",
+    "training_range_mm": [
+      20.21126747,
+      298.5601175
+    ],
+    "training_median_mm": 94.86762427,
+    "assumed_meaning": "mean monthly precipitation total (mm/month)",
+    "verified": false,
+    "prediction_mode": "season_mean_monthly_proxy",
+    "climatology_years": 10
+  },
+  "n_train_rows": 1760,
+  "n_test_rows": 440,
+  "test_metrics": {
+    "accuracy": 0.9954545454545455,
+    "macro_precision": 0.9956709956709957,
+    "macro_recall": 0.9954545454545454,
+    "macro_f1": 0.9954517027687758
+  },
+  "baseline_model": "LogisticRegression",
+  "baseline_test_metrics": {
+    "accuracy": 0.9727272727272728,
+    "macro_precision": 0.9740217299040829,
+    "macro_recall": 0.9727272727272727,
+    "macro_f1": 0.9724640256149183
+  },
+  "cv_fold_accuracies": [
+    1.0,
+    0.9971590909090909,
+    0.9857954545454546,
+    0.9886363636363636,
+    0.9943181818181818
+  ],
+  "cv_mean_accuracy": 0.9931818181818182,
+  "cv_std_accuracy": 0.005269101417895276,
+  "model_file": "crop_rf_model_v2.joblib",
+  "scaler_file": "crop_feature_scaler_v2.joblib"
+}

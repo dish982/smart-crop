@@ -9,16 +9,26 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [greeting, setGreeting] = useState("Good Day");
 
-const [recentDiagnoses, setRecentDiagnoses] = useState([]);
+  const [recentDiagnoses, setRecentDiagnoses] = useState([]);
+  const [recentMarket, setRecentMarket] = useState([]); 
 
-useEffect(() => {
-  fetch('/api/history?type=disease')
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) setRecentDiagnoses((data.history || []).slice(0, 3));
-    })
-    .catch(() => {});
-}, []);
+  useEffect(() => {
+    fetch('/api/history?type=disease')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setRecentDiagnoses((data.history || []).slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
+
+   useEffect(() => {
+    fetch('/api/history?type=market')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setRecentMarket((data.history || []).slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
 
@@ -163,7 +173,26 @@ useEffect(() => {
           <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
             MARKET ALERT
           </span>
-          <p className="text-xs text-text-subtle">Select target crops to view live mandi rate updates.</p>
+          {recentMarket.length === 0 ? (
+            <p className="text-xs text-text-subtle">Check a crop's price to see selling alerts here.</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {recentMarket.map((item) => (
+                <li key={item._id} className="text-xs text-text-main flex justify-between gap-2">
+                  <span className="truncate">
+                    {item.inputData?.crop} @ {item.inputData?.mandi}
+                  </span>
+                  <span
+                    className={`shrink-0 font-semibold ${
+                      item.resultData?.decision === "WAIT" ? "text-primary-green" : "text-accent-cherry"
+                    }`}
+                  >
+                    {item.resultData?.decision === "WAIT" ? "WAIT" : "SELL"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
