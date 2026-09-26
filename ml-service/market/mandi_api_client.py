@@ -31,6 +31,7 @@ def get_price_history(state: str, commodity: str, market: str | None = None,
     params = {"state": state, "commodity": commodity}
     if market:
         params["market"] = MANDI_API_MAPPING.get(market, market)
+    print(f"[DEBUG] querying live API with: {params}")  # add this
     if from_date:
         params["from"] = from_date
     if to_date:
