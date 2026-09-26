@@ -132,3 +132,9 @@ input[type="number"]::-webkit-outer-spin-button {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary-green);
 }
+
+
+.select {
+  @apply w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 bg-white
+         focus:outline-none focus:ring-2 focus:ring-green-600/30 focus:border-green-600;
+}
