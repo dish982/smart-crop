@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb'; // Using your existing db helper
+import { connectToDatabase } from '@/lib/mongodb';
 import FarmerHistory from '@/models/FarmerHistory';
 import User from '@/models/User';
 
