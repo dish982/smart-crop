@@ -26,10 +26,19 @@ BASE_DIR = Path(__file__).resolve().parent
 
 router = APIRouter()
 
-# Loaded once when this module is imported (same behavior as the original main.py)
-MODEL, SCALER, METADATA = load_model()
-AGRICULTURE = load_agriculture_data()
-SOIL_PROFILES = load_soil_district_profiles()
+# CHANGED: MODEL, SCALER, METADATA, AGRICULTURE, SOIL_PROFILES and
+# _METADATA_CACHE used to be loaded/computed right here at import time. On
+# Render, that made this whole file's import block until it all finished,
+# which delayed Uvicorn from ever binding its port (Render's "no open ports"
+# error). Now they start as None and get filled in by init(), which main.py
+# calls AFTER the port is already open. Nothing else below this changed.
+MODEL = None
+SCALER = None
+METADATA = None
+AGRICULTURE = None
+SOIL_PROFILES = None
+_METADATA_CACHE = None
+
 
 # Precompute the states/districts/seasons lookup ONCE at startup, instead of
 # recomputing it on every /metadata call. This data is static (built from the
@@ -50,7 +59,15 @@ def _build_metadata_cache():
     return {"states": states, "districts": districts, "seasons": seasons}
 
 
-_METADATA_CACHE = _build_metadata_cache()
+# CHANGED: this function didn't exist before — it's just the same lines that
+# used to run directly at module level, now wrapped so main.py can call them
+# after the port is open instead of before.
+def init():
+    global MODEL, SCALER, METADATA, AGRICULTURE, SOIL_PROFILES, _METADATA_CACHE
+    MODEL, SCALER, METADATA = load_model()
+    AGRICULTURE = load_agriculture_data()
+    SOIL_PROFILES = load_soil_district_profiles()
+    _METADATA_CACHE = _build_metadata_cache()
 
 
 class CropRequest(BaseModel):

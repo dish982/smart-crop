@@ -16,14 +16,24 @@ from market.shelf_life import get_shelf_life_days
 
 router = APIRouter()
 
-# Loaded once at import time, same pattern as crop/router.py
-MODEL = joblib.load(config.MODEL_PATH)
-HISTORY_DF = pd.read_csv(config.RESAMPLED_PATH, parse_dates=["arrival_date"])
+# CHANGED: MODEL and HISTORY_DF used to be loaded right here at import time.
+# On Render, that made this whole file's import block until loading finished,
+# which delayed Uvicorn from ever binding its port (Render's "no open ports"
+# error). Now they start as None and get filled in by init(), which main.py
+# calls AFTER the port is already open. Nothing else below this changed.
+MODEL = None
+HISTORY_DF = None
 
-print(
-    f"[market] Loaded {len(HISTORY_DF)} rows "
-    f"({HISTORY_DF['crop'].nunique()} crops, {HISTORY_DF['mandi'].nunique()} mandis)"
-)
+
+def init():
+    global MODEL, HISTORY_DF
+    MODEL = joblib.load(config.MODEL_PATH)
+    HISTORY_DF = pd.read_csv(config.RESAMPLED_PATH, parse_dates=["arrival_date"])
+
+    print(
+        f"[market] Loaded {len(HISTORY_DF)} rows "
+        f"({HISTORY_DF['crop'].nunique()} crops, {HISTORY_DF['mandi'].nunique()} mandis)"
+    )
 
 
 class MarketRequest(BaseModel):
