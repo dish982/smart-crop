@@ -20,3 +20,5 @@ LOG_TRANSFORM_TARGET = True
 
 WAIT_GAIN_THRESHOLD_PCT = 5.0
 FALL_LOSS_THRESHOLD_PCT = -5.0
+
+STALE_DATA_THRESHOLD_DAYS = 30   # NEW — if the latest recorded market price is older than this, flag it

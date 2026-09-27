@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore entire standalone ML folder
+ML/
+
+# Python cache files
+__pycache__/
+*.pyc

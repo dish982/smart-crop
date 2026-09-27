@@ -39,7 +39,18 @@ export async function POST(request) {
       return Response.json({ error: data.detail || "Prediction failed" }, { status: res.status });
     }
 
-    const resultPayload = { ...data, current_date: data.current_date || null };
+    const advisoryDate = new Date().toISOString();
+
+    const resultPayload = {
+  ...data,
+  current_date: data.current_date || null,
+
+  // Date when the farmer actually took the advisory
+  advisory_date: advisoryDate,
+
+  // Date of the price received from the mandi API
+  live_price_date: data.current_date || null,
+};
 
     // Save to history, same pattern as disease detection
     const user = getUserFromCookie(request);

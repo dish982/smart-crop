@@ -9,6 +9,7 @@ import RecommendationCard from "@/components/mandi/RecommendationCard";
 import MarketSummaryCard from "@/components/mandi/MarketSummaryCard";
 import PriceHistoryChart from "@/components/mandi/PriceHistoryChart";
 import MandiComparisonChart from "@/components/mandi/MandiComparisonChart";
+import StaleDataBanner from "@/components/mandi/StaleDataBanner";
 
 export default function ResultPage() {
   const params = useSearchParams();
@@ -49,27 +50,29 @@ export default function ResultPage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-8 max-w-lg mx-auto">
-        <div className="card-agri text-accent-cherry text-sm">{error}</div>
-        <button
-          onClick={() => router.back()}
-          className="btn-secondary mt-4"
-        >
-          Go back
-        </button>
+if (error) {
+  return (
+    <div className="p-8 max-w-lg mx-auto">
+      <div className="card-agri text-accent-cherry text-sm">
+        {error}
       </div>
-    );
-  }
+
+      <button
+        onClick={() => router.back()}
+        className="btn-secondary mt-4"
+      >
+        Go back
+      </button>
+    </div>
+  );
+}
 
   if (!data) return null;
 
-  const peakEntry = data.forecast.reduce(
-    (max, f) =>
-      f.predicted_price > max.predicted_price ? f : max,
-    data.forecast[0]
-  );
+  const peakEntry = {
+    predicted_price: data.peak_price,
+    date: data.peak_date,
+  };
 
   const currentEntry = {
     predicted_price: data.current_price,
@@ -109,6 +112,7 @@ export default function ResultPage() {
           currentPrice={data.current_price}
           currentDate={data.current_date}
           forecast={data.forecast}
+          staleData={data.stale_data}
         />
       </div>
 
@@ -131,13 +135,13 @@ export default function ResultPage() {
 
       <RecommendationCard
         decision={data.decision}
+        trend={data.trend}
         currentPrice={data.current_price}
         peakPrice={peakEntry.predicted_price}
         peakDate={peakEntry.date}
-        forecast={data.forecast}
-        trend={data.trend}
+        peakStatus={data.peak_status}
+        peakMessage={data.peak_message}
         shelfLifeDays={data.shelf_life_days}
-        daysUntilPeak={data.days_until_peak}
         shelfLifeWarning={data.shelf_life_warning}
       />
 

@@ -2,7 +2,7 @@ export async function GET(request) {
   const base = process.env.ML_SERVICE_URL || "http://localhost:8000";
   const { searchParams } = new URL(request.url);
   try {
-    const res = await fetch(`${base}/api/market/compare-mandis?${searchParams.toString()}`, { cache: "no-store" });
+    const res = await fetch(`${base}/api/market/mandi-comparison?${searchParams.toString()}`, { cache: "no-store" });
     const data = await res.json();
     return Response.json(data, { status: res.status });
   } catch (err) {

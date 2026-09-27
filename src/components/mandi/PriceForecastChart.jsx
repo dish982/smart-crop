@@ -6,7 +6,7 @@ import {
   CartesianGrid, ReferenceDot, Legend,
 } from "recharts";
 
-export default function PriceForecastChart({ actualHistory, currentPrice, currentDate,forecast }) {
+export default function PriceForecastChart({ actualHistory, currentPrice, currentDate,forecast, staleData  }) {
   const fmt = (d) =>
     new Date(d).toLocaleDateString("en-IN", {
       month: "short",
@@ -46,6 +46,14 @@ export default function PriceForecastChart({ actualHistory, currentPrice, curren
     : null;
 
   return (
+    <>
+    {staleData && (
+        <p className="text-xs text-amber-700 mb-2">
+          Note: dates below follow the last recorded market date, not today's date.
+        </p>
+      )}
+
+
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
         data={data}
@@ -140,5 +148,6 @@ export default function PriceForecastChart({ actualHistory, currentPrice, curren
         )}
       </LineChart>
     </ResponsiveContainer>
+    </>
   );
 }

@@ -198,32 +198,99 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
-            MARKET ALERT
-          </span>
-          {recentMarket.length === 0 ? (
-            <p className="text-xs text-text-subtle">Check a crop's price to see selling alerts here.</p>
-          ) : (
-            <ul className="space-y-1.5">
-              {recentMarket.map((item) => (
-                <li key={item._id} className="text-xs text-text-main flex justify-between gap-2">
-                  <span className="truncate">
-                    {item.inputData?.crop} @ {item.inputData?.mandi}
-                  </span>
-                  <span
-                    className={`shrink-0 font-semibold ${
-                      item.resultData?.decision === "WAIT" ? "text-primary-green" : "text-accent-cherry"
-                    }`}
-                  >
-                    {item.resultData?.decision === "WAIT" ? "WAIT" : "SELL"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+              <div className="bg-surface-card border border-border-light rounded-2xl p-5 shadow-sm">
+  <span className="text-[10px] tracking-widest font-bold uppercase text-text-subtle block mb-2">
+    MARKET ALERT
+  </span>
+
+  {recentMarket.length === 0 ? (
+    <p className="text-xs text-text-subtle">
+      Check a crop's price to see selling alerts here.
+    </p>
+  ) : (
+    <ul className="space-y-4">
+      {recentMarket.map((item) => {
+        const decision = item.resultData?.decision;
+        const crop = item.inputData?.crop;
+        const mandi = item.inputData?.mandi;
+        const price = item.resultData?.current_price;
+
+        // Date when the farmer took the advisory
+        const advisoryDate = item.resultData?.advisory_date;
+
+        // Date on which the live mandi price was recorded
+        const livePriceDate =
+          item.resultData?.live_price_date ||
+          item.resultData?.current_date;
+
+        const formattedAdvisoryDate = advisoryDate
+          ? new Date(advisoryDate).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "—";
+
+        const formattedLivePriceDate = livePriceDate
+          ? new Date(livePriceDate).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "—";
+
+        return (
+          <li
+            key={item._id}
+            className="text-xs text-text-main border-b border-border-light last:border-0 pb-3 last:pb-0"
+          >
+            {/* Advisory date + decision */}
+            <div className="flex justify-between items-start gap-2">
+              <div>
+                <p className="font-semibold text-text-main">
+                  {formattedAdvisoryDate}
+                </p>
+
+                <p className="text-text-subtle mt-0.5">
+                  {crop} @ {mandi}
+                </p>
+              </div>
+
+              <span
+                className={`shrink-0 font-bold px-2 py-1 rounded-full text-[10px] ${
+                  decision === "WAIT"
+                    ? "text-primary-green bg-primary-green/10"
+                    : "text-accent-cherry bg-accent-cherry/10"
+                }`}
+              >
+                {decision === "WAIT" ? "WAIT" : "SELL"}
+              </span>
+            </div>
+
+            {/* Live mandi price */}
+            {price !== undefined && price !== null && (
+              <div className="mt-2">
+                <p className="text-text-subtle">
+                  Live Price
+                </p>
+
+                <p className="font-bold text-text-main">
+                  ₹{Number(price).toLocaleString("en-IN")}
+                </p>
+
+                <p className="text-[10px] text-text-subtle">
+                  Mandi price date: {formattedLivePriceDate}
+                </p>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</div>
       </div>
-    </div>
+      </div>
+   
   );
 }

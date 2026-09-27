@@ -38,7 +38,7 @@ export default function TrendSummaryCard({ trend, currentPrice, forecast }) {
             </span>
           </p>
           <p className="text-text-subtle">
-            Expected change from selected date:{" "}
+            Expected change by day 7:{" "}
             <span className="font-semibold text-text-main">{pctChange >= 0 ? "+" : ""}{pctChange}%</span>
           </p>
         </div>
