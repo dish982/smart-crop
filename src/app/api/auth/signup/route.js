@@ -5,11 +5,11 @@ import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const THIRTY_DAYS = 30 * 24 * 60 * 60; // in seconds
+const THIRTY_DAYS = 30 * 24 * 60 * 60;
 
 export async function POST(request) {
   try {
-    const { name, phone, password, state, district, language } = await request.json();
+    const { name, phone, password, state, district, language, email } = await request.json();
 
     if (!name || !phone || !password) {
       return NextResponse.json(
@@ -33,18 +33,19 @@ export async function POST(request) {
       name,
       phone,
       password: hashedPassword,
+      email: email ? email.toLowerCase().trim() : '',
       state: state || '',
       district: district || '',
       language: language || 'en',
     });
 
-    // Generate JWT Token valid for 30 days
     const token = jwt.sign(
-      { userId: newUser._id, 
-        phone: newUser.phone, 
-        role: newUser.role || "Farmer",
+      {
+        userId: newUser._id,
+        phone: newUser.phone,
+        role: newUser.role || 'Farmer',
         state: newUser.state,
-       },
+      },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -57,7 +58,6 @@ export async function POST(request) {
       { status: 201 }
     );
 
-    // Set HttpOnly Cookie (Persists for 30 days)
     response.cookies.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

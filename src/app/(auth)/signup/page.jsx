@@ -13,6 +13,7 @@ export default function SignupPage() {
     password: '',
     state: '',
     district: '',
+    email:'',
     language: 'en'
   });
   const [loading, setLoading] = useState(false);
@@ -135,6 +136,20 @@ export default function SignupPage() {
               onChange={handleChange}
               maxLength={10}
               className="input-agri text-lg"
+            />
+          </div>
+
+                    <div>
+            <label className="block text-sm font-semibold mb-1 text-text-subtle">
+              Email <span className="text-xs font-normal">(Optional, needed for password reset)</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              className="input-agri"
             />
           </div>
 
